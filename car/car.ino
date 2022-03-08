@@ -1,6 +1,6 @@
 //water valve
-#define WATER_VALVE_TT_MOTOR_IN1 2
-#define WATER_VALVE_TT_MOTOR_IN2 4
+#define WATER_VALVE_IN1 2
+#define WATER_VALVE_IN2 4
 
 //turning
 #include <Servo.h>
@@ -11,6 +11,19 @@ Servo turning_servo;
 #define TURNING_SERVO_FRONT_ANGLE 180
 
 #define TURNING_SERVO_PIN 3
+
+//brake
+bool brake_state = false;                   //true for activated
+
+Servo brake_servo_left;
+#define BRAKE_SERVO_LEFT_ON_ANGLE 0
+#define BRAKE_SERVO_LEFT_OFF_ANGLE 180
+#define BRAKE_SERVO_LEFT_PIN 9
+
+Servo brake_servo_right;
+#define BRAKE_SERVO_RIGHT_ON_ANGLE 0
+#define BRAKE_SERVO_RIGHT_OFF_ANGLE 180
+#define BRAKE_SERVO_RIGHT_PIN 10
 
 //nrf24l01
 #include <SPI.h>
@@ -35,11 +48,15 @@ RF24 radio(NRF24L01_CE, NRF24L01_CSN);
 void setup()
 {
     //water valve
-    pinMode(WATER_VALVE_TT_MOTOR_IN1, OUTPUT);
-    pinMode(WATER_VALVE_TT_MOTOR_IN2, OUTPUT);
+    pinMode(WATER_VALVE_IN1, OUTPUT);
+    pinMode(WATER_VALVE_IN2, OUTPUT);
 
     //turning
     turning_servo.attach(TURNING_SERVO_PIN);
+
+    //brake
+    brake_servo_left.attach(BRAKE_SERVO_LEFT_PIN);
+    brake_servo_right.attach(BRAKE_SERVO_RIGHT_PIN);
 
     //nrf24l01
     Serial.begin(9600);
@@ -65,29 +82,53 @@ void loop()
     if(msg == "car foward")
     {
         turning_servo.write(TURNING_SERVO_FRONT_ANGLE);
+        brake_servo_left.write(BRAKE_SERVO_LEFT_OFF_ANGLE);
+        brake_servo_right.write(BRAKE_SERVO_RIGHT_OFF_ANGLE);
+        brake_state = false;
     }
     else if(msg == "car right")
     {
         turning_servo.write(TURNING_SERVO_RIGHT_ANGLE);
+        brake_servo_left.write(BRAKE_SERVO_LEFT_OFF_ANGLE);
+        brake_servo_right.write(BRAKE_SERVO_RIGHT_OFF_ANGLE);
+        brake_state = false;
     }
     else if(msg == "car left")
     {
         turing_servo.write(TURNING_SERVO_LEFT_ANGLE);
+        brake_servo_left.write(BRAKE_SERVO_LEFT_OFF_ANGLE);
+        brake_servo_right.write(BRAKE_SERVO_RIGHT_OFF_ANGLE);
+        brake_state = false;
     }
     else if(msg == "open valve")
     {
-        digitalWrite(WATER_VALVE_TT_MOTOR_IN1, HIGH);
-        digitalWrite(WATER_VALVE_TT_MOTOR_IN2, LOW);
+        digitalWrite(WATER_VALVE_IN1, HIGH);
+        digitalWrite(WATER_VALVE_IN2, LOW);
     }
     else if(msg == "close valve")
     {
-        digitalWrite(WATER_VALVE_TT_MOTOR_IN1, LOW);
-        digitalWrite(WATER_VALVE_TT_MOTOR_IN2, HIGH);
+        digitalWrite(WATER_VALVE_IN1, LOW);
+        digitalWrite(WATER_VALVE_IN2, LOW);
     }
     else if(msg == "valve stop")
     {
-        digitalWrite(WATER_VALVE_TT_MOTOR_IN1, LOW);
-        digitalWrite(WATER_VALVE_TT_MOTOR_IN2, LOW);
+        // digitalWrite(WATER_VALVE_IN1, LOW);
+        // digitalWrite(WATER_VALVE_IN2, LOW);
+    }
+    else if(msg == "car brake")
+    {
+        if(brake_state == false)
+        {
+            brake_servo_left.write(BRAKE_SERVO_LEFT_ON_ANGLE);
+            brake_servo_right.write(BRAKE_SERVO_RIGHT_ON_ANGLE);
+            brake_state = true;
+        }
+        else if(brake_state == true)
+        {
+            brake_servo_left.write(BRAKE_SERVO_LEFT_OFF_ANGLE);
+            brake_servo_right.write(BRAKE_SERVO_RIGHT_OFF_ANGLE);
+            brake_state = false;
+        }
     }
 
     delay(50);

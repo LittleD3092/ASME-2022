@@ -4,6 +4,7 @@
 #define BUTTON_CAR_LEFT 6
 #define BUTTON_CAR_RIGHT 7
 #define BUTTON_CAR_FRONT 8
+#define BUTTON_CAR_BRAKE 9
 
 bool button_state[2] = {0};
 
@@ -24,7 +25,7 @@ bool button_state[2] = {0};
 
 RF24 radio(NRF24L01_CE, NRF24L01_CSN);
 
-const byte addr[] = "1Nodes";
+const byte addr[] = "1Node";
 
 void setup()
 {
@@ -34,6 +35,7 @@ void setup()
     pinMode(BUTTON_CAR_LEFT, INPUT);
     pinMode(BUTTON_CAR_RIGHT, INPUT);
     pinMode(BUTTON_CAR_FRONT, INPUT);
+    pinMode(BUTTON_CAR_BRAKE, INPUT);
 
     //nRF24L01
     radio.begin();
@@ -85,6 +87,11 @@ void loop()
     else if(digitalRead(BUTTON_CAR_FRONT) == HIGH)
     {
         const char msg[] = "car foward";
+        radio.write(&msg, sizeof(msg));
+    }
+    else if(digitalRead(BUTTON_CAR_BRAKE) == HIGH)
+    {
+        const char msg[] = "car brake";
         radio.write(&msg, sizeof(msg));
     }
 
