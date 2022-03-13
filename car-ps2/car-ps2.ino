@@ -1,3 +1,5 @@
+#include <Servo.h>
+
 //water valve
 Servo valve_servo;
 #define VALVE_SERVO_PIN 10
@@ -5,12 +7,11 @@ Servo valve_servo;
 #define VALVE_CLOSE_ANGLE 10
 
 //turning
-#include <Servo.h>
 Servo turning_servo;
 
 #define TURNING_SERVO_LEFT_ANGLE 0
-#define TURNING_SERVO_RIGHT_ANGLE 10
-#define TURNING_SERVO_FRONT_ANGLE 20
+#define TURNING_SERVO_RIGHT_ANGLE 20
+#define TURNING_SERVO_FRONT_ANGLE 60
 
 #define TURNING_SERVO_PIN 3
 
@@ -43,6 +44,7 @@ Servo brake_servo;
 // RF24 radio(NRF24L01_CE, NRF24L01_CSN);
 
 //ps2
+#include <PS2X_lib.h>
 
 #define DATA_PORT 5
 #define COMMAND_PORT 6
@@ -109,12 +111,12 @@ void loop()
 
     ps2x.read_gamepad(false, vibrate);
 
-    char msg[32] = "";
-    if(ps2x.Button(PSB_PAD_UP))
+    String msg;
+    if(ps2x.ButtonPressed(PSB_PAD_UP))
         msg = "car foward";
-    else if(ps2x.Button(PSB_PAD_RIGHT))
+    else if(ps2x.ButtonPressed(PSB_PAD_RIGHT))
         msg = "car right";
-    else if(ps2x.Button(PSB_PAD_LEFT))
+    else if(ps2x.ButtonPressed(PSB_PAD_LEFT))
         msg = "car left";
     else if(ps2x.Button(PSB_BLUE))
         msg = "open valve";
@@ -131,13 +133,13 @@ void loop()
     }
     else if(msg == "car right")
     {
-        turning_servo.write(TURNING_SERVO_RIGHT_ANGLE);
+        turning_servo.write(turning_servo.read() + 10);
         brake_servo.write(BRAKE_SERVO_OFF_ANGLE);
         brake_state = false;
     }
     else if(msg == "car left")
     {
-        turing_servo.write(TURNING_SERVO_LEFT_ANGLE);
+        turning_servo.write(turning_servo.read() - 10);
         brake_servo.write(BRAKE_SERVO_OFF_ANGLE);
         brake_state = false;
     }
@@ -163,7 +165,7 @@ void loop()
         }
         else if(brake_state == true)
         {
-            brake_servo_left.write(BRAKE_SERVO_OFF_ANGLE);
+            brake_servo.write(BRAKE_SERVO_OFF_ANGLE);
             brake_state = false;
         }
     }
