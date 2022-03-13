@@ -1,29 +1,26 @@
 //water valve
-#define WATER_VALVE_IN1 2
-#define WATER_VALVE_IN2 4
+Servo valve_servo;
+#define VALVE_SERVO_PIN 10
+#define VALVE_OPEN_ANGLE 0
+#define VALVE_CLOSE_ANGLE 10
 
 //turning
 #include <Servo.h>
 Servo turning_servo;
 
 #define TURNING_SERVO_LEFT_ANGLE 0
-#define TURNING_SERVO_RIGHT_ANGLE 90
-#define TURNING_SERVO_FRONT_ANGLE 180
+#define TURNING_SERVO_RIGHT_ANGLE 10
+#define TURNING_SERVO_FRONT_ANGLE 20
 
 #define TURNING_SERVO_PIN 3
 
 //brake
 bool brake_state = false;                   //true for activated
 
-Servo brake_servo_left;
-#define BRAKE_SERVO_LEFT_ON_ANGLE 0
-#define BRAKE_SERVO_LEFT_OFF_ANGLE 180
-#define BRAKE_SERVO_LEFT_PIN 9
-
-Servo brake_servo_right;
-#define BRAKE_SERVO_RIGHT_ON_ANGLE 0
-#define BRAKE_SERVO_RIGHT_OFF_ANGLE 180
-#define BRAKE_SERVO_RIGHT_PIN 10
+Servo brake_servo;
+#define BRAKE_SERVO_ON_ANGLE 0
+#define BRAKE_SERVO_OFF_ANGLE 10
+#define BRAKE_SERVO_PIN 9
 
 //nrf24l01
 // #include <SPI.h>
@@ -66,15 +63,13 @@ void setup()
     Serial.println("start");
 
     //water valve
-    pinMode(WATER_VALVE_IN1, OUTPUT);
-    pinMode(WATER_VALVE_IN2, OUTPUT);
+    valve_servo.attach(VALVE_SERVO_PIN);
 
     //turning
     turning_servo.attach(TURNING_SERVO_PIN);
 
     //brake
-    brake_servo_left.attach(BRAKE_SERVO_LEFT_PIN);
-    brake_servo_right.attach(BRAKE_SERVO_RIGHT_PIN);
+    brake_servo.attach(BRAKE_SERVO_PIN);
 
     //nrf24l01
     // Serial.begin(9600);
@@ -131,33 +126,28 @@ void loop()
     if(msg == "car foward")
     {
         turning_servo.write(TURNING_SERVO_FRONT_ANGLE);
-        brake_servo_left.write(BRAKE_SERVO_LEFT_OFF_ANGLE);
-        brake_servo_right.write(BRAKE_SERVO_RIGHT_OFF_ANGLE);
+        brake_servo.write(BRAKE_SERVO_OFF_ANGLE);
         brake_state = false;
     }
     else if(msg == "car right")
     {
         turning_servo.write(TURNING_SERVO_RIGHT_ANGLE);
-        brake_servo_left.write(BRAKE_SERVO_LEFT_OFF_ANGLE);
-        brake_servo_right.write(BRAKE_SERVO_RIGHT_OFF_ANGLE);
+        brake_servo.write(BRAKE_SERVO_OFF_ANGLE);
         brake_state = false;
     }
     else if(msg == "car left")
     {
         turing_servo.write(TURNING_SERVO_LEFT_ANGLE);
-        brake_servo_left.write(BRAKE_SERVO_LEFT_OFF_ANGLE);
-        brake_servo_right.write(BRAKE_SERVO_RIGHT_OFF_ANGLE);
+        brake_servo.write(BRAKE_SERVO_OFF_ANGLE);
         brake_state = false;
     }
     else if(msg == "open valve")
     {
-        digitalWrite(WATER_VALVE_IN1, HIGH);
-        digitalWrite(WATER_VALVE_IN2, LOW);
+        valve_servo.write(VALVE_OPEN_ANGLE);
     }
     else if(msg == "close valve")
     {
-        digitalWrite(WATER_VALVE_IN1, LOW);
-        digitalWrite(WATER_VALVE_IN2, LOW);
+        valve_servo.write(VALVE_CLOSE_ANGLE);
     }
     else if(msg == "valve stop")
     {
@@ -168,14 +158,12 @@ void loop()
     {
         if(brake_state == false)
         {
-            brake_servo_left.write(BRAKE_SERVO_LEFT_ON_ANGLE);
-            brake_servo_right.write(BRAKE_SERVO_RIGHT_ON_ANGLE);
+            brake_servo.write(BRAKE_SERVO_ON_ANGLE);
             brake_state = true;
         }
         else if(brake_state == true)
         {
-            brake_servo_left.write(BRAKE_SERVO_LEFT_OFF_ANGLE);
-            brake_servo_right.write(BRAKE_SERVO_RIGHT_OFF_ANGLE);
+            brake_servo_left.write(BRAKE_SERVO_OFF_ANGLE);
             brake_state = false;
         }
     }
